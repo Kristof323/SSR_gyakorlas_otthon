@@ -1,5 +1,6 @@
-import { Controller, Get, Render } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Query, Render } from '@nestjs/common';
 import { AppService } from './app.service.js';
+import { ArticleView } from './ArticleView.js';
 
 @Controller()
 export class AppController {
@@ -81,5 +82,23 @@ export class AppController {
       
     }
    
+  }
+
+  @Get("szures")
+  @Render('szures')
+  getSzures(@Query('minViews') minViewsQuery?: string) {
+    const minViews = minViewsQuery === undefined ? 1000 : Number(minViewsQuery);
+
+    if (!Number.isInteger(minViews) || minViews < 0) {
+      throw new BadRequestException('A minimum megtekintésszám nemnegatív egész szám legyen.');
+    }
+
+    const filtered = this.JsonData[0].filter(article => article.views > minViews);
+
+    return {
+      title: 'Listázás - Szűrés',
+      articles: filtered,
+      minViews
+    }
   }
 }
